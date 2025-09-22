@@ -37,6 +37,42 @@ mask
 
 纯 Encoder 模型通常通过破坏给定的句子（例如随机遮盖其中的词语），然后让模型进行重构来进行预训练，最适合处理那些需要理解整个句子语义的任务，例如句子分类、命名实体识别（词语分类）、抽取式问答
 
+### 注意力
+
+对输入文本进行编码，转换为一个由词语向量组成的矩阵 $\boldsymbol{X} = (\boldsymbol{x}_1, \boldsymbol{x}_2, \ldots, \boldsymbol{x}_n)$，其中 $\boldsymbol{x}_i$ 就表示第 $i$ 个词语的词向量，维度为 $d$，故 $\boldsymbol{X} \in \mathbb{R}^{n \times d}$。
+1. 首先对句子进行分词
+2. 然后将每个词语 (token) 都转化为对应的词向量 (token embeddings)
+
+对 token 序列编码方式（2 老 1 新）
+- RNN（例如 LSTM） $\boldsymbol{y}_t = f(\boldsymbol{y}_{t-1}, \boldsymbol{x}_t)$
+    - 递归的结构导致其无法并行计算，因此速度较慢
+    - 本质是一个马尔科夫决策过程，难以学习到全局的结构信息
+- CNN： $\boldsymbol{y}_t = f(\boldsymbol{x}_{t-1}, \boldsymbol{x}_t, \boldsymbol{x}_{t+1})$ （核尺寸为 3）
+    - 能够并行地计算，因此速度很快
+    - 由于是通过窗口来进行编码，所以更侧重于捕获局部信息，难以建模长距离的语义依赖
+- Attention（Google《Attention is All You Need》） $\boldsymbol{y}_t = f(\boldsymbol{x}_t, \boldsymbol{A}, \boldsymbol{B})$
+    - $\boldsymbol{A},\boldsymbol{B}$ 是另外的词语序列（矩阵），如果取 $\boldsymbol{A} = \boldsymbol{B} = \boldsymbol{X}$ 就称为 Self-Attention
+
+#### Scaled Dot-product Attention
+
+$$\text{Attention}(\boldsymbol{Q}, \boldsymbol{K}, \boldsymbol{V}) = \text{softmax}\left( \frac{\boldsymbol{Q}\boldsymbol{K}^\top}{\sqrt{d_k}} \right) \boldsymbol{V}$$
+
+1. 计算注意力权重
+2. 更新 token embeddings
+
+当 Q、K 相同时，相同单词会分配较大分数
+
+#### Multi-head Attention
+
+$$
+head_i = \text{Attention}(QW_i^Q, KW_i^K, VW_i^V)
+$$
+
+$$
+\text{MultiHead}(Q, K, V) = \text{Concat}(head_1, \dots, head_h)
+$$
+
+每个注意力头负责关注某一方面的语义相似性，多个头就可以让模型同时关注多个方面。因此与简单的 Scaled Dot-product Attention 相比，Multi-head Attention 可以捕获到更加复杂的特征信息
 
 ## 名词
 
