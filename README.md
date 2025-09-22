@@ -74,6 +74,12 @@ $$
 
 每个注意力头负责关注某一方面的语义相似性，多个头就可以让模型同时关注多个方面。因此与简单的 Scaled Dot-product Attention 相比，Multi-head Attention 可以捕获到更加复杂的特征信息
 
+### Encoder
+
+#### feed-forward
+
+Transformer Encoder/Decoder 中的前馈子层实际上就是**两层全连接神经网络**，它**单独地处理序列中的每一个词向量**，也被称为 **position-wise** feed-forward layer
+
 ## 名词
 
 - **NLP**（Natural Language Processing，自然语言处理）
