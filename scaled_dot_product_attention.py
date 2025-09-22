@@ -17,7 +17,6 @@ if __name__ == "__main__":
     tokenizer = AutoTokenizer.from_pretrained(model_ckpt)
     print(f"{type(tokenizer) = }")
 
-
     text = "time flies like an arrow"
     # return_tensors="pt" 返回 tensor 的类型，pt： pytorch
     # .venv.lib.python3.13.site-packages.transformers.utils.generic.TensorType
@@ -26,8 +25,7 @@ if __name__ == "__main__":
     print(f"{inputs.input_ids = }")
     print(f"{inputs.input_ids.shape = }")
 
-
-    print(f"\n把 token 转为词向量/嵌入向量")
+    print("\n把 token 转为词向量/嵌入向量")
 
     config = AutoConfig.from_pretrained(model_ckpt)
     print(f"{type(config) = }")
@@ -49,7 +47,7 @@ if __name__ == "__main__":
     # Q: (b, m, d_k) K: (b, n, d_k) V: (b, n, d_v)
     Q = K = V = inputs_embeds
     dim_k = K.size(-1)
-    scores = torch.bmm(Q, K.transpose(1,2)) / sqrt(dim_k)
+    scores = torch.bmm(Q, K.transpose(1, 2)) / sqrt(dim_k)
     print(f"QK^T 的形状 (b,m,n)，由于m=n，这里就是 (b,n,n) {scores.size() = }")
     print(f"{scores = }")
 
@@ -58,14 +56,19 @@ if __name__ == "__main__":
 
     # 注意力权重与 value 相乘，得到的每一行都是之前所有 value 向量的加权求和，所以结果形状是 (b,n,d_model)
     attn_outputs = torch.bmm(weights, V)
-    print(f"注意力权重与 value 相乘结果，形状 (b,n,d_v) d_v 这里与 d_model 一致 {attn_outputs.shape=}")
+    print(
+        f"注意力权重与 value 相乘结果，形状 (b,n,d_v) d_v 这里与 d_model 一致 {attn_outputs.shape=}"
+    )
 
 
 # 封装一个函数
-
 def scaled_dot_product_attention(
-    query: Tensor, key: Tensor, value: Tensor,
-    query_mask: Optional[Tensor]=None, key_mask: Optional[Tensor]=None, mask: Optional[Tensor]=None
+    query: Tensor,
+    key: Tensor,
+    value: Tensor,
+    query_mask: Optional[Tensor] = None,
+    key_mask: Optional[Tensor] = None,
+    mask: Optional[Tensor] = None,
 ) -> Tensor:
     """
     query:    (b, m, d_k)
