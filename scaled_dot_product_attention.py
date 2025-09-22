@@ -63,13 +63,16 @@ if __name__ == "__main__":
 
 # 封装一个函数
 
-def scaled_dot_product_attention(query: Tensor, key: Tensor, value: Tensor, query_mask: Optional[Tensor]=None, key_mask: Optional[Tensor]=None, mask=None) -> Tensor:
+def scaled_dot_product_attention(
+    query: Tensor, key: Tensor, value: Tensor,
+    query_mask: Optional[Tensor]=None, key_mask: Optional[Tensor]=None, mask: Optional[Tensor]=None
+) -> Tensor:
     """
-    query: (b,n,d_k)
-    key: (b,n,d_k)
-    value: (b,n,d_v)
+    query:    (b, m, d_k)
+    key:      (b, n, d_k)
+    value:    (b, n, d_v)
 
-    return: (b,n,d_v)
+    return:   (b, m, d_v)
     """
     dim_k = query.size(-1)
     scores = torch.bmm(query, key.transpose(1, 2)) / sqrt(dim_k)
