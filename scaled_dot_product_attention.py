@@ -31,6 +31,9 @@ if __name__ == "__main__":
         pretrained_model_name_or_path=model_ckpt
     )
     print(f"{type(config) = }")
+    # vocab_size 是词汇表大小
+    # hidden_size 就是词向量维度，也是模型维度， bert-base-uncased 中是 768
+    # https://huggingface.co/google-bert/bert-base-uncased/blob/main/config.json
     print(f"{config.vocab_size = }, {config.hidden_size = }")
 
     token_emb = nn.Embedding(config.vocab_size, config.hidden_size)
