@@ -1,5 +1,5 @@
 [project]
-name = "fk-llm"
+name = "llm-transformer-nlp"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
