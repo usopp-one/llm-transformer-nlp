@@ -4,7 +4,7 @@ from torch import Tensor
 from torch import nn
 import torch
 from transformers import AutoConfig
-from transformers import AutoTokenizer
+from transformers import AutoTokenizer, BertConfig
 from math import sqrt
 import torch.nn.functional as F
 from typing import Optional
@@ -14,7 +14,7 @@ if __name__ == "__main__":
     print("\n 将文本分词为 token 序列（词索引 int 序列）")
 
     model_ckpt = "bert-base-uncased"
-    tokenizer = AutoTokenizer.from_pretrained(model_ckpt)
+    tokenizer = AutoTokenizer.from_pretrained(pretrained_model_name_or_path=model_ckpt)
     print(f"{type(tokenizer) = }")
 
     text = "time flies like an arrow"
@@ -27,7 +27,9 @@ if __name__ == "__main__":
 
     print("\n把 token 转为词向量/嵌入向量")
 
-    config = AutoConfig.from_pretrained(model_ckpt)
+    config: BertConfig = AutoConfig.from_pretrained(
+        pretrained_model_name_or_path=model_ckpt
+    )
     print(f"{type(config) = }")
     print(f"{config.vocab_size = }, {config.hidden_size = }")
 
