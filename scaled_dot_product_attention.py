@@ -45,6 +45,8 @@ if __name__ == "__main__":
 
     print("\n计算 Q、K、V 矩阵")
 
+    # (b, n, d_model)
+    # Q: (b, m, d_k) K: (b, n, d_k) V: (b, n, d_v)
     Q = K = V = inputs_embeds
     dim_k = K.size(-1)
     scores = torch.bmm(Q, K.transpose(1,2)) / sqrt(dim_k)
