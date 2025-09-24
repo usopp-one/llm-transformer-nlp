@@ -1,0 +1,51 @@
+from torch import Tensor, nn
+from transformers import BertConfig
+
+
+class FeedForward(nn.Module):
+    def __init__(self, config: BertConfig) -> None:
+        super().__init__()
+
+        # 一般是网络大小的 4 倍
+        print(f"配置中间层大小：{config.intermediate_size = }")
+
+        self.linear_1 = nn.Linear(config.hidden_size, config.intermediate_size)
+        self.linear_2 = nn.Linear(config.intermediate_size, config.hidden_size)
+        self.gelu = nn.GELU()
+
+        self.dropout = nn.Dropout(config.hidden_dropout_prob)
+
+    def forward(self, x: Tensor) -> Tensor:
+        return self.dropout(self.linear_2(self.gelu(self.linear_1(x))))
+
+
+if __name__ == "__main__":
+    from transformers import AutoConfig, AutoTokenizer, BertTokenizerFast
+
+    from llm_transformer_nlp.attention.multi_head_attention import MultiHeadAttention
+
+    model_ckpt = "bert-base-uncased"
+    config: BertConfig = AutoConfig.from_pretrained(model_ckpt)
+    print(f"配置：{config = }")
+
+    tokenizer: BertTokenizerFast = AutoTokenizer.from_pretrained(model_ckpt)
+    emb = nn.Embedding(config.vocab_size, config.hidden_size)
+    mulithead_attn = MultiHeadAttention(config=config)
+    feed_forward = FeedForward(config)
+    print()
+    print(f"分词器：{tokenizer = }")
+    print(f"词嵌入层：{emb = }")
+    print(f"多头自注意力：{mulithead_attn = }")
+    print(f"前馈网络：{feed_forward = }")
+
+    text = "time flies like an arrow"
+    inputs = tokenizer(text, return_tensors="pt", add_special_tokens=False)
+    inputs_emb: Tensor = emb(inputs.input_ids)
+    query = key = value = inputs_emb
+    # 多头注意力输出形状 (b, seq_len, d_model)
+    attn_output: Tensor = mulithead_attn(query, key, value)
+    print()
+    print(f"多头注意力输出形状：{attn_output.shape = }")
+    # 前馈网络输出形状 (b, seq_len, d_model)
+    feed_output: Tensor = feed_forward(attn_output)
+    print(f"前馈网络输出形状：{feed_output.shape = }")
