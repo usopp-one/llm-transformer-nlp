@@ -1,15 +1,15 @@
-from torch import nn, Tensor
-from transformers import BertConfig
 import torch
-from typing import Optional
-from transformers import AutoConfig, AutoTokenizer, BertTokenizerFast
+from torch import Tensor, nn
+from transformers import AutoConfig, AutoTokenizer, BertConfig, BertTokenizerFast
+
 from llm_transformer_nlp.attention.scaled_dot_product_attention import (
     scaled_dot_product_attention,
 )
 
 
 class AttentionHead(nn.Module):
-    # 实践中一般把 head_dim 设置成 embed_dim // num_heads，最终在多头注意力结果拼接后长度 = embed_dim
+    # 实践中一般把 head_dim 设置成 embed_dim // num_heads
+    # 最终在多头注意力结果拼接后长度 = embed_dim
     def __init__(self, embed_dim: int, head_dim: int) -> None:
         super().__init__()
 
@@ -23,9 +23,9 @@ class AttentionHead(nn.Module):
         query: Tensor,
         key: Tensor,
         value: Tensor,
-        query_mask: Optional[Tensor] = None,
-        key_mask: Optional[Tensor] = None,
-        mask: Optional[Tensor] = None,
+        query_mask: Tensor | None = None,
+        key_mask: Tensor | None = None,
+        mask: Tensor | None = None,
     ) -> Tensor:
         attn_outputs = scaled_dot_product_attention(
             self.q(query), self.k(key), self.v(value), query_mask, key_mask, mask
@@ -55,9 +55,9 @@ class MultiHeadAttention(nn.Module):
         query: Tensor,
         key: Tensor,
         value: Tensor,
-        query_mask: Optional[Tensor] = None,
-        key_mask: Optional[Tensor] = None,
-        mask: Optional[Tensor] = None,
+        query_mask: Tensor | None = None,
+        key_mask: Tensor | None = None,
+        mask: Tensor | None = None,
     ) -> Tensor:
         x = torch.cat(
             [h(query, key, value, query_mask, key_mask, mask) for h in self.heads],

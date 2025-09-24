@@ -1,14 +1,9 @@
-from torch import Tensor
-
-
-from torch import nn
-import torch
-from transformers import AutoConfig
-from transformers import AutoTokenizer, BertConfig
 from math import sqrt
-import torch.nn.functional as F
-from typing import Optional
 
+import torch
+import torch.nn.functional as F
+from torch import Tensor, nn
+from transformers import AutoConfig, AutoTokenizer, BertConfig
 
 if __name__ == "__main__":
     print("\n 将文本分词为 token 序列（词索引 int 序列）")
@@ -37,7 +32,8 @@ if __name__ == "__main__":
     print(f"{config.vocab_size = }, {config.hidden_size = }")
 
     token_emb = nn.Embedding(config.vocab_size, config.hidden_size)
-    # nn.Embedding 就是一个形状为 (词汇表大小, 嵌入向量/词向量维度) 的查找矩阵，会将输入词索引直接映射为对应的词向量
+    # nn.Embedding 就是一个形状为 (词汇表大小, 嵌入向量/词向量维度) 的查找矩阵，
+    # 会将输入词索引直接映射为对应的词向量
     #   矩阵中的数据即参数是可以训练的
     print(f"词嵌入器（查找矩阵）形状 {token_emb = }")
     inputs_embeds: torch.Tensor = token_emb(inputs.input_ids)
@@ -59,11 +55,10 @@ if __name__ == "__main__":
     weights = F.softmax(scores, dim=-1)
     print(f"在最后一个维度上 softmax 之后，和应该为 1, {weights.sum(dim=-1) = }")
 
-    # 注意力权重与 value 相乘，得到的每一行都是之前所有 value 向量的加权求和，所以结果形状是 (b,n,d_model)
+    # 注意力权重与 value 相乘，得到的每一行都是之前所有 value 向量的加权求和
+    # 所以结果形状是 (b,n,d_model)
     attn_outputs = torch.bmm(weights, V)
-    print(
-        f"注意力权重与 value 相乘结果，形状 (b,n,d_v) d_v 这里与 d_model 一致 {attn_outputs.shape=}"
-    )
+    print(f"注意力输出形状： {attn_outputs.shape=}")
 
 
 # 封装一个函数
@@ -71,9 +66,9 @@ def scaled_dot_product_attention(
     query: Tensor,
     key: Tensor,
     value: Tensor,
-    query_mask: Optional[Tensor] = None,
-    key_mask: Optional[Tensor] = None,
-    mask: Optional[Tensor] = None,
+    query_mask: Tensor | None = None,
+    key_mask: Tensor | None = None,
+    mask: Tensor | None = None,
 ) -> Tensor:
     """
     query:    (b, m, d_k)
