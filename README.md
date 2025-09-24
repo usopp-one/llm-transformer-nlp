@@ -11,9 +11,9 @@ uv sync
 uv pip install -e .
 ```
 
-注意力
-- [scaled dot-product attention](src/attention/scaled_dot_product_attention.py)
-- [multi-head attention](src/attention/multi_head_attention.py)
+- [缩放点积注意力](src/llm_transformer_nlp/attention/scaled_dot_product_attention.py)
+- [多头自注意力](src/llm_transformer_nlp/attention/multi_head_attention.py)
+- [前馈神经网络](src/llm_transformer_nlp/encoder/feed-forward.py)
 
 ## Transformer
 
