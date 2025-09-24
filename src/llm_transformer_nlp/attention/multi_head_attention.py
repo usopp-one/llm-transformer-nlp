@@ -2,36 +2,10 @@ from torch import nn, Tensor
 from transformers import BertConfig
 import torch
 from typing import Optional
-import torch.nn.functional as F
-from math import sqrt
 from transformers import AutoConfig, AutoTokenizer, BertTokenizerFast
-
-
-# copy from ./scaled_dot_product_attention.py
-def scaled_dot_product_attention(
-    query: Tensor,
-    key: Tensor,
-    value: Tensor,
-    query_mask: Optional[Tensor] = None,
-    key_mask: Optional[Tensor] = None,
-    mask: Optional[Tensor] = None,
-) -> Tensor:
-    """
-    query:    (b, m, d_k)
-    key:      (b, n, d_k)
-    value:    (b, n, d_v)
-
-    return:   (b, m, d_v)
-    """
-    dim_k = query.size(-1)
-    scores = torch.bmm(query, key.transpose(1, 2)) / sqrt(dim_k)
-    if query_mask is not None and key_mask is not None:
-        mask = torch.bmm(query_mask.unsqueeze(-1), key_mask.unsqueeze(1))
-    if mask is not None:
-        # mask 值为 0 的地方置为 -inf，经过 softmax 变为 0
-        scores = scores.masked_fill(mask == 0, -float("inf"))
-    weights = F.softmax(scores, dim=-1)
-    return torch.bmm(weights, value)
+from llm_transformer_nlp.attention.scaled_dot_product_attention import (
+    scaled_dot_product_attention,
+)
 
 
 class AttentionHead(nn.Module):

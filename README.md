@@ -4,9 +4,16 @@
 
 ## 代码
 
+环境
+
+```bash
+uv sync
+uv pip install -e .
+```
+
 注意力
-- [scaled dot-product attention](code/attention/scaled_dot_product_attention.py)
-- [multi-head attention](code/attention/multi_head_attention.py)
+- [scaled dot-product attention](src/attention/scaled_dot_product_attention.py)
+- [multi-head attention](src/attention/multi_head_attention.py)
 
 ## Transformer
 
