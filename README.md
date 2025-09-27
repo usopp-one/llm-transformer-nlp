@@ -13,7 +13,7 @@ uv pip install -e .
 
 - src/llm_transformer_nlp/
     - config.py 获取 Bert 配置和分词器
-    - token_embedding.py 词嵌入
+    - sample_token_embedding.py 词嵌入，供没有自己实现嵌入层时使用
     - attention/ 注意力
         - scaled_dot_product_attention.py 缩放点积注意力
         - multi_head_attention.py 多头自注意力
@@ -99,6 +99,13 @@ Transformer Encoder/Decoder 中的前馈子层实际上就是**两层全连接�
 
 - **Post layer normalization**：Transformer 论文中使用的方式，将 Layer normalization 放在 Skip Connections 之间。 但是因为梯度可能会发散，这种做法很难训练，还需要结合学习率预热 (learning rate warm-up) 等技巧
 - **Pre layer normalization**：目前主流的做法，将 Layer Normalization 放置于 Skip Connections 的范围内。这种做法通常训练过程会更加稳定，并且不需要任何学习率预热
+
+#### Positional Embeddings
+
+Positional Embeddings 用于添加词语的位置，因为注意力机制无法捕获词语之间的位置信息
+
+思路是**使用与位置相关的值模式来增强词向量**
+
 
 ## 名词
 

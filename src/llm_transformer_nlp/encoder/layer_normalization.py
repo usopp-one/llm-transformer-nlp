@@ -35,7 +35,7 @@ class TransformerEncoderLayer(nn.Module):
 
 if __name__ == "__main__":
     from llm_transformer_nlp.config import get_bert_config, get_bert_tokenizer
-    from llm_transformer_nlp.token_embedding import get_embedding
+    from llm_transformer_nlp.sample_token_embedding import get_embedding
 
     config = get_bert_config()
     tokenizer = get_bert_tokenizer()
