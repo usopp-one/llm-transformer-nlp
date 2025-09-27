@@ -18,6 +18,7 @@ uv pip install -e .
         - scaled_dot_product_attention.py 缩放点积注意力
         - multi_head_attention.py 多头自注意力
     - encoder/ 编码器
+        - encoder.py 完整的编码器实现
         - feed_forward.py 前馈神经网络
         - layer_normalization.py 层归一化
         - positional_embedding.py 位置嵌入
@@ -90,7 +91,7 @@ $$
 
 每个注意力头负责关注某一方面的语义相似性，多个头就可以让模型同时关注多个方面。因此与简单的 Scaled Dot-product Attention 相比，Multi-head Attention 可以捕获到更加复杂的特征信息
 
-### Encoder
+### Transformer Encoder
 
 #### feed-forward
 
@@ -111,6 +112,12 @@ Positional Embeddings 用于添加词语的位置，因为注意力机制无法�
 - **绝对位置表示**：使用由调制的正弦和余弦信号组成的静态模式来编码位置。没有大量训练数据可用时，这种方法尤其有效
 - **相对位置表示**：需要在模型层面对注意力机制进行修改，而不是通过引入嵌入层来完成
 
+### Transformer Decoder
+
+与 Encoder 最大的不同在于 Decoder 有两个注意力子层
+
+1. Masked multi-head self-attention layer：确保在每个时间步生成的词语仅基于过去的输出和当前预测的词，否则 Decoder 相当于作弊了
+2. Encoder-decoder attention layer：以解码器的中间表示作为 queries，对 encoder stack 的输出 key 和 value 向量执行 Multi-head Attention
 
 ## 名词
 
@@ -148,3 +155,16 @@ Positional Embeddings 用于添加词语的位置，因为注意力机制无法�
 - **ChatGPT** 模型（Chat Generative Pre-trained Transformer）：2022 年 11 月 30 日 OpenAI 
 - **微调**（Instruction Tuning）
 - **思维链**提示（Chain-of-Thought Prompting）
+
+## `pipelines`
+
+`pipelines` 封装了预训练模型和对应的前处理和后处理环节。我们只需输入文本，就能得到预期的答案
+
+pipeline 模型会自动完成以下三个步骤：
+1. 将文本预处理为模型可以理解的格式
+2. 将预处理好的文本送入模型
+3. 对模型的预测值进行后处理，输出人类可以理解的格式
+
+示例
+- 情感分析 [sentiment_analysis.py](src/pipelines/sentiment_analysis.py)
+- 零训练样本分类 [zero_shot_classification.py](src/pipelines/zero_shot_classification.py)
