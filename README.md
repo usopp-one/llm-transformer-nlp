@@ -1,6 +1,6 @@
 # 学习大模型和 Transformer
 
-学习资料：[Hello! · Transformers快速入门](https://transformers.run/)
+——依靠 [Transformers快速入门](https://transformers.run/) 这篇教程，配合 [huggingface/transformers](https://github.com/huggingface/transformers) 这个库和 NLP 场景
 
 ## 代码
 
