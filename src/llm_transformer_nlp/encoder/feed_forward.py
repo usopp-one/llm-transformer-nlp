@@ -20,15 +20,13 @@ class FeedForward(nn.Module):
 
 
 if __name__ == "__main__":
-    from transformers import AutoConfig, AutoTokenizer, BertTokenizerFast
-
     from llm_transformer_nlp.attention.multi_head_attention import MultiHeadAttention
+    from llm_transformer_nlp.config import get_bert_config, get_bert_tokenizer
 
-    model_ckpt = "bert-base-uncased"
-    config: BertConfig = AutoConfig.from_pretrained(model_ckpt)
+    config = get_bert_config()
     print(f"配置：{config = }")
 
-    tokenizer: BertTokenizerFast = AutoTokenizer.from_pretrained(model_ckpt)
+    tokenizer = get_bert_tokenizer()
     emb = nn.Embedding(config.vocab_size, config.hidden_size)
     mulithead_attn = MultiHeadAttention(config=config)
     feed_forward = FeedForward(config)
