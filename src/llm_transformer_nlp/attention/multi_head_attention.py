@@ -40,6 +40,7 @@ class MultiHeadAttention(nn.Module):
         embed_dim: int = config.hidden_size
         num_heads: int = config.num_attention_heads
         head_dim: int = embed_dim // num_heads
+        # 注意有多个模型构成的列表要用 nn.ModuleList 来封装，遮阳才能进行训练
         self.heads = nn.ModuleList(
             [AttentionHead(embed_dim, head_dim) for _ in range(num_heads)]
         )

@@ -20,6 +20,7 @@ uv pip install -e .
     - encoder/ 编码器
         - feed_forward.py 前馈神经网络
         - layer_normalization.py 层归一化
+        - positional_embedding.py 位置嵌入
 
 transformers 库：[huggingface/transformers](https://github.com/huggingface/transformers)，文档：[Transformers](https://huggingface.co/docs/transformers/index)
 
@@ -105,6 +106,10 @@ Transformer Encoder/Decoder 中的前馈子层实际上就是**两层全连接�
 Positional Embeddings 用于添加词语的位置，因为注意力机制无法捕获词语之间的位置信息
 
 思路是**使用与位置相关的值模式来增强词向量**
+
+- **模型自动学习位置嵌入**：预训练数据集足够大时，可以让模型自己学习位置嵌入，当前项目代码中实现的就是这个
+- **绝对位置表示**：使用由调制的正弦和余弦信号组成的静态模式来编码位置。没有大量训练数据可用时，这种方法尤其有效
+- **相对位置表示**：需要在模型层面对注意力机制进行修改，而不是通过引入嵌入层来完成
 
 
 ## 名词

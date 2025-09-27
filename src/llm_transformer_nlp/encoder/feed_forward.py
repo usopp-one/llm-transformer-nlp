@@ -6,9 +6,7 @@ class FeedForward(nn.Module):
     def __init__(self, config: BertConfig) -> None:
         super().__init__()
 
-        # 一般是网络大小的 4 倍
-        print(f"配置中间层大小：{config.intermediate_size = }")
-
+        # 中间层一般是网络大小的 4 倍
         self.linear_1 = nn.Linear(config.hidden_size, config.intermediate_size)
         self.linear_2 = nn.Linear(config.intermediate_size, config.hidden_size)
         self.gelu = nn.GELU()

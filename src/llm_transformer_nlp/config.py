@@ -12,9 +12,14 @@ def get_bert_config() -> BertConfig:
 
     print(
         "-" * 80 + f"\n加载模型配置: {MODEL_BERT_CKPT} {type(config)}"
-        f"\n词汇表大小: {config.vocab_size = }"
-        f"\n模型大小 D : {config.hidden_size = }"
-        f"\n注意力头数 : {config.num_attention_heads = }"
+        f"\n词汇表大小 {config.vocab_size = }"
+        f"\n模型大小 D  {config.hidden_size = }"
+        f"\n模型层数 N {config.num_hidden_layers = }"
+        f"\n注意力头数  {config.num_attention_heads = }"
+        f"\n前馈神经网络中间层（一般是模型大小 * 4） {config.intermediate_size = }"
+        # 相当于最大输入 token 数
+        f"\n最大位置 {config.max_position_embeddings = }"
+        f"\n层归一化 epsilon {config.layer_norm_eps = }"
     )
     return config
 
