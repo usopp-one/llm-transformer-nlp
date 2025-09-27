@@ -11,9 +11,17 @@ uv sync
 uv pip install -e .
 ```
 
-- [缩放点积注意力](src/llm_transformer_nlp/attention/scaled_dot_product_attention.py)
-- [多头自注意力](src/llm_transformer_nlp/attention/multi_head_attention.py)
-- [前馈神经网络](src/llm_transformer_nlp/encoder/feed-forward.py)
+- src/llm_transformer_nlp/
+    - config.py 获取 Bert 配置和分词器
+    - token_embedding.py 词嵌入
+    - attention/ 注意力
+        - scaled_dot_product_attention.py 缩放点积注意力
+        - multi_head_attention.py 多头自注意力
+    - encoder/ 编码器
+        - feed_forward.py 前馈神经网络
+        - layer_normalization.py 层归一化
+
+transformers 库：[huggingface/transformers](https://github.com/huggingface/transformers)，文档：[Transformers](https://huggingface.co/docs/transformers/index)
 
 ## Transformer
 
@@ -86,6 +94,11 @@ $$
 #### feed-forward
 
 Transformer Encoder/Decoder 中的前馈子层实际上就是**两层全连接神经网络**，它**单独地处理序列中的每一个词向量**，也被称为 **position-wise** feed-forward layer
+
+#### Layer Normalization
+
+- **Post layer normalization**：Transformer 论文中使用的方式，将 Layer normalization 放在 Skip Connections 之间。 但是因为梯度可能会发散，这种做法很难训练，还需要结合学习率预热 (learning rate warm-up) 等技巧
+- **Pre layer normalization**：目前主流的做法，将 Layer Normalization 放置于 Skip Connections 的范围内。这种做法通常训练过程会更加稳定，并且不需要任何学习率预热
 
 ## 名词
 
