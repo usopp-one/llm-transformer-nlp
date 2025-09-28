@@ -193,9 +193,10 @@ Transformers 库封装了很多不同的结构，常见的有：
 - `*ForSequenceClassification` （用于文本分类任务）
 - `*ForTokenClassification` （用于 token 分类任务，例如 NER）
 
-Transformer 模块的输出是一个维度为 (Batch size, Sequence length, Hidden size) 的三维张量，其中 Batch size 表示每次输入的样本（文本序列）数量，即每次输入多少个句子；Sequence length 表示文本序列的长度，即每个句子被分为多少个 token；Hidden size 表示每一个 token 经过模型编码后的输出向量（语义表示）的维度
+Transformer 模块的输出是一个维度为 (Batch size, Sequence length, Hidden size) 的三维张量，其中 Batch size 表示每次输入的样本（文本序列）数量，即每次输入多少个句子；Sequence length 表示文本序列的长度，即每个句子被分为多少个 token；Hidden size 表示每一个 token 经过模型编码后的输出向量（语义表示）的维度。`模型输出.last_hidden_state` 可以得到对应的数据
 
-对于情感分析任务，很明显我们最后需要使用的是一个文本分类 head。因此，实际上我们不会使用 AutoModel 类，而是使用 `AutoModelForSequenceClassification`，其对于 batch 中的每一个样本，模型都会输出一个两维的向量（每一维对应一个标签，positive 或 negative）。要将他们转换为概率值，还需要让它们经过一个 SoftMax 层。最后，为了得到对应的标签，可以读取模型 config 中提供的 id2label 属性
+对于情感分析任务，很明显我们最后需要使用的是一个文本分类 head。因此，实际上我们不会使用 AutoModel 类，而是使用 `AutoModelForSequenceClassification`，其对于 batch 中的每一个样本，模型都会输出一个两维的向量（每一维对应一个标签，positive 或 negative），`模型输出.logits` 可以得到对应的数据。要将他们转换为概率值，还需要让它们经过一个 SoftMax 层。最后，为了得到对应的标签，可以读取模型 config 中提供的 `id2label` 属性
+
 
 ## 模型与分词器
 
@@ -233,3 +234,16 @@ Transformer 模块的输出是一个维度为 (Batch size, Sequence length, Hidd
 - `vocab.txt` 词表，一行一个 token，行号就是对应的 token ID（从 0 开始）
 
 文本解码 (Decoding) 与编码相反，负责将 token IDs 转换回原来的字符串。**注意，解码过程不是简单地将 token IDs 映射回 tokens，还需要合并那些被分为多个 token 的单词**。分词器都有 `encode`、`decode` 函数
+
+直接使用分词器，可以帮助我们完成**切分、转换 token ID、Padding、构建 Attention Mask、截断**等操作
+
+### 添加 token
+
+- 添加普通 token
+- 添加特殊 token
+
+### Token embedding 初始化
+
+- **随机值**，后续需要大量数据训练
+- **直接赋值**为已有 token 的值
+- **初始化为已有 token 的值** $\boldsymbol{E}(t_i) = \frac{1}{n} \sum_{j=1}^{n} \boldsymbol{E}(w_{i,j})$
