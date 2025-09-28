@@ -166,5 +166,9 @@ pipeline 模型会自动完成以下三个步骤：
 3. 对模型的预测值进行后处理，输出人类可以理解的格式
 
 示例
-- 情感分析 [sentiment_analysis.py](src/pipelines/sentiment_analysis.py)
-- 零训练样本分类 [zero_shot_classification.py](src/pipelines/zero_shot_classification.py)
+- 分类
+    - 情感分析 [sentiment_analysis.py](src/pipelines/sentiment_analysis.py)
+    - 零训练样本分类 [zero_shot_classification.py](src/pipelines/zero_shot_classification.py)
+- 文本生成
+    - 前缀模板（Preﬁx Prompt） [text_generation.py](src/pipelines/text_generation.py)
+    - 填充模板（Cloze Prompt） 
