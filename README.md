@@ -158,17 +158,78 @@ Positional Embeddings 用于添加词语的位置，因为注意力机制无法�
 
 ## `pipelines`
 
+[Pipelines](https://huggingface.co/docs/transformers/main_classes/pipelines)
+
 `pipelines` 封装了预训练模型和对应的前处理和后处理环节。我们只需输入文本，就能得到预期的答案
 
 pipeline 模型会自动完成以下三个步骤：
-1. 将文本预处理为模型可以理解的格式
+1. 预处理（preprocessing）将文本预处理为模型可以理解的格式
 2. 将预处理好的文本送入模型
-3. 对模型的预测值进行后处理，输出人类可以理解的格式
+3. 后处理（postprocessing）对模型的预测值进行后处理，输出人类可以理解的格式
 
 示例
 - 分类
     - 情感分析 [sentiment_analysis.py](src/pipelines/sentiment_analysis.py)
     - 零训练样本分类 [zero_shot_classification.py](src/pipelines/zero_shot_classification.py)
+    - 命名实体识别（NER） [ner.py](src/pipelines/ner.py)
 - 文本生成
     - 前缀模板（Preﬁx Prompt） [text_generation.py](src/pipelines/text_generation.py)
-    - 填充模板（Cloze Prompt） 
+    - 填充模板（Cloze Prompt） [fill_mask.py](src/pipelines/fill_mask.py)
+- 问答，根据上下文回答问题 [question_answering.py](src/pipelines/question_answering.py)
+    - 抽取式 QA（extractive QA） 假设答案就包含在文档中，因此直接从文档中抽取答案
+    - 多选 QA（multiple-choice QA） 从多个给定的选项中选择答案，相当于做阅读理解题
+    - 无约束 QA（free-form QA） 直接生成答案文本，并且对答案文本格式没有任何限制
+
+
+使用 `transformers.AutoModel.from_pretrained` 可以加载模型。预训练模型的本体只包含基础的 Transformer 模块，对于给定的输入，它会输出一些神经元的值，称为 hidden states 或者特征 (features)。对于 NLP 模型来说，可以理解为是文本的高维语义表示。这些 hidden states 通常会被输入到其他的模型部分（称为 head），以完成特定的任务，例如送入到分类头中完成文本分类任务
+
+Transformers 库封装了很多不同的结构，常见的有：
+
+- `*Model` （返回 hidden states）
+- `*ForCausalLM` （用于条件语言模型）
+- `*ForMaskedLM` （用于遮盖语言模型）
+- `*ForMultipleChoice` （用于多选任务）
+- `*ForQuestionAnswering` （用于自动问答任务）
+- `*ForSequenceClassification` （用于文本分类任务）
+- `*ForTokenClassification` （用于 token 分类任务，例如 NER）
+
+Transformer 模块的输出是一个维度为 (Batch size, Sequence length, Hidden size) 的三维张量，其中 Batch size 表示每次输入的样本（文本序列）数量，即每次输入多少个句子；Sequence length 表示文本序列的长度，即每个句子被分为多少个 token；Hidden size 表示每一个 token 经过模型编码后的输出向量（语义表示）的维度
+
+对于情感分析任务，很明显我们最后需要使用的是一个文本分类 head。因此，实际上我们不会使用 AutoModel 类，而是使用 `AutoModelForSequenceClassification`，其对于 batch 中的每一个样本，模型都会输出一个两维的向量（每一维对应一个标签，positive 或 negative）。要将他们转换为概率值，还需要让它们经过一个 SoftMax 层。最后，为了得到对应的标签，可以读取模型 config 中提供的 id2label 属性
+
+## 模型与分词器
+
+### 模型
+
+`具体Model.from_pretrained` 也可以加载模型，一般是通过 `AutoModel`，这样方便换
+
+保存模型： `.save_pretrained(目录)`
+
+- `config.json` 模型配置文件，存储模型结构参数，例如 Transformer 层数、特征空间维度等
+- `pytorch_model.bin` 又称为 state dictionary，存储模型的权重
+
+### 分词器
+
+将文本转换为数字的过程称为编码（Encoding），步骤：
+1. **分词**：使用分词器（tokenizer）将文本切分成 tokens
+2. **映射**：将所有 token 映射到对应的 token ID
+
+分词策略
+- 按词切分（Word-based）
+    - 按空格切分
+    - 按符号切分
+    - 缺点：所有出现过的独立片段都作为不同的 token，从而产生巨大的词表。而实际上很多词是相关的，例如 “dog” 和 “dogs”、“run” 和 “running”，如果给它们赋予不同的编号就无法表示出这种关联性
+    - 如果分词结果中包含很多 `[UNK]` 就意味着丢失了很多文本信息
+- 按字符切分（Character-based）
+    - 只会产生一个非常小的词表，并且很少会出现词表外的 tokens
+    - 切分出的 tokens 会很多
+- 按子词切分（Subword-based）：高频词直接保留，低频词被切分为更有意义的子词
+    - 只用一个较小的词表就可以覆盖绝大部分文本，基本不会产生 unknown token
+
+分词器的加载与保存使用 `Tokenizer.from_pretrained()` 和 `Tokenizer.save_pretrained()`
+
+- `special_tokens_map.json` 映射文件，里面包含 unknown token 等特殊字符的映射关系
+- `tokenizer_config.json` 分词器配置文件，存储构建分词器需要的参数
+- `vocab.txt` 词表，一行一个 token，行号就是对应的 token ID（从 0 开始）
+
+文本解码 (Decoding) 与编码相反，负责将 token IDs 转换回原来的字符串。**注意，解码过程不是简单地将 token IDs 映射回 tokens，还需要合并那些被分为多个 token 的单词**。分词器都有 `encode`、`decode` 函数
