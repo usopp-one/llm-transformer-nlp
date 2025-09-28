@@ -7,8 +7,7 @@ def get_bert_config() -> BertConfig:
     # 根据 huggingface 模型名加载配置
     # google/bert-base-uncased
     # 结果存储在 ~/.cache/huggingface/hub/models--bert-base-uncased
-    config = AutoConfig.from_pretrained(MODEL_BERT_CKPT)
-    assert isinstance(config, BertConfig)
+    config: BertConfig = AutoConfig.from_pretrained(MODEL_BERT_CKPT)
 
     print(
         "-" * 80 + f"\n加载模型配置: {MODEL_BERT_CKPT} {type(config)}"
