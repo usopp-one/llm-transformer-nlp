@@ -155,6 +155,7 @@ Positional Embeddings 用于添加词语的位置，因为注意力机制无法�
 - **ChatGPT** 模型（Chat Generative Pre-trained Transformer）：2022 年 11 月 30 日 OpenAI 
 - **微调**（Instruction Tuning）
 - **思维链**提示（Chain-of-Thought Prompting）
+- **批（batch）** 将数据集切分为很多 mini-batches，然后按批 (batch) 将样本送入模型，循环这一过程，每一个完整遍历所有样本的循环称为一个 **epoch**。训练模型时，通常会在每次 epoch 循环开始前随机打乱样本顺序以缓解过拟合
 
 ## `pipelines`
 
@@ -236,6 +237,8 @@ Transformer 模块的输出是一个维度为 (Batch size, Sequence length, Hidd
 文本解码 (Decoding) 与编码相反，负责将 token IDs 转换回原来的字符串。**注意，解码过程不是简单地将 token IDs 映射回 tokens，还需要合并那些被分为多个 token 的单词**。分词器都有 `encode`、`decode` 函数
 
 直接使用分词器，可以帮助我们完成**切分、转换 token ID、Padding、构建 Attention Mask、截断**等操作
+
+最后的反转换、合并也用分词器做
 
 ### 添加 token
 
