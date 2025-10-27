@@ -1,5 +1,7 @@
+import typing
+
 import torch
-from torch import nn
+from torch import Tensor, nn
 from torch.utils.data import DataLoader
 from torchvision import datasets
 from torchvision.transforms import ToTensor
@@ -36,16 +38,20 @@ class NeuralNetwork(nn.Module):
             nn.Dropout(p=0.2),
         )
 
-    def forward(self, x):
+    def forward(self, x: Tensor) -> Tensor:
         x = self.flatten(x)
         logits = self.linear_relu_stack(x)
         return logits
+
+    if typing.TYPE_CHECKING:
+
+        def __call__(self, x: Tensor) -> Tensor: ...
 
 
 model = NeuralNetwork().to(device)
 
 
-def train_loop(dataloader, model, loss_fn, optimizer):
+def train_loop(dataloader, model: NeuralNetwork, loss_fn, optimizer):
     size = len(dataloader.dataset)
     model.train()
     print(dataloader)
