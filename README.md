@@ -249,4 +249,68 @@ Transformer 模块的输出是一个维度为 (Batch size, Sequence length, Hidd
 
 - **随机值**，后续需要大量数据训练
 - **直接赋值**为已有 token 的值
-- **初始化为已有 token 的值** $\boldsymbol{E}(t_i) = \frac{1}{n} \sum_{j=1}^{n} \boldsymbol{E}(w_{i,j})$
+- **初始化为已有 token 的值**
+    - 例如将值初始化为 token 语义描述中所有 token 的平均值： $\boldsymbol{E}(t_i) = \frac{1}{n} \sum_{j=1}^{n} \boldsymbol{E}(w_{i,j})$
+
+## Pytorch
+
+### 张量的存储与连续
+
+张量在内存中读写时，是通过每一阶的不同步长定义取数位置的
+
+当内存中存储顺序与逻辑顺序一致时，称为连续，否则为不连续
+
+下面是示例代码 M 连续，N 不连续
+
+```python title:代码
+M = torch.arange(6).view(2,3)
+
+print(M)
+print(M.storage())        # 存储
+print(M.stride())         # 步长
+print(M.is_contiguous())  # 是否连续
+
+N = M.t()
+
+print(N)
+print(N.storage())
+print(N.stride())
+print(N.is_contiguous())
+```
+
+```python title:输出
+tensor([[0, 1, 2],
+        [3, 4, 5]])
+ 0
+ 1
+ 2
+ 3
+ 4
+ 5
+[torch.storage.TypedStorage(dtype=torch.int64, device=cpu) of size 6]
+(3, 1)
+True
+tensor([[0, 3],
+        [1, 4],
+        [2, 5]])
+ 0
+ 1
+ 2
+ 3
+ 4
+ 5
+[torch.storage.TypedStorage(dtype=torch.int64, device=cpu) of size 6]
+(1, 3)
+False
+```
+
+### 训练过程
+
+每一轮迭代 (Epoch) 包含了两个步骤
+1. **训练循环 (The Train Loop)** 在训练集上进行迭代，尝试收敛到最佳的参数
+2. **验证/测试循环 (The Validation/Test Loop)** 在测试/验证集上进行迭代以检查模型性能有没有提升
+
+在训练循环中，优化器通过以下三个步骤进行优化：
+1. **`optimizer.zero_grad()`** 重设模型参数的梯度。默认情况下梯度会进行累加，为了防止重复计算，在每个训练阶段开始前都需要清零梯度
+2. **`loss.backwards()`** 反向传播预测结果的损失，即计算损失对每一个参数的偏导
+3. **`optimizer.step()`** 根据梯度调整模型的参数
