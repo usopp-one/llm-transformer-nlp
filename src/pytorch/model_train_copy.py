@@ -1,4 +1,4 @@
-import typing
+from collections.abc import Callable
 
 import torch
 from torch import Tensor, nn
@@ -38,14 +38,12 @@ class NeuralNetwork(nn.Module):
             nn.Dropout(p=0.2),
         )
 
+    __call__: Callable[[Tensor], Tensor]
+
     def forward(self, x: Tensor) -> Tensor:
         x = self.flatten(x)
         logits = self.linear_relu_stack(x)
         return logits
-
-    if typing.TYPE_CHECKING:
-
-        def __call__(self, x: Tensor) -> Tensor: ...
 
 
 model = NeuralNetwork().to(device)
